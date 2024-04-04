@@ -32,6 +32,27 @@ async function deleteTodo(id: number): Promise<void>  {
 	}
 }
 
+async function updateStatusTodo(id: number, currentStatus: number): Promise<void>  {
+	const url = 'http://127.0.0.1:7878'
+	const body = {
+		status : currentStatus === 0 ? 1 : 0 
+	}
+	try {
+		await fetch(url+'/v1/todos/update-status?id='+id, {
+			method: "PUT",
+			credentials: 'include',
+			body: JSON.stringify(body),
+		})
+		window.location.reload()
+	} catch(err: any) {
+		return err?.message ?? 'error update status'
+	}
+}
+
+function getStyleTodoDone(status: number) {
+	return status === 1 ? 'text-decoration: line-through;' : '';
+}
+
 todos.value = await fetchTodos()
 
 </script>
@@ -43,19 +64,32 @@ todos.value = await fetchTodos()
 			<TodoForm />
 		</div>
 
-		<v-card class="mx-auto my-2" width="100%"  v-for="todo in todos" :key="todo.ID">
+		<v-card 
+			:color="todo.Status === 0 ? 'indigo' : ''"
+			:variant="todo.Status === 0 ? 'flat' : 'tonal'"
+			class="mx-auto my-2"
+			width="100%"
+			v-for="todo in todos" 
+			:key="todo.ID"
+		>
 			<v-card-item>
-				<v-card-title>{{ todo.Title }}</v-card-title>
-				<v-card-subtitle>{{ todo.DueDate }}</v-card-subtitle>
+				<v-card-title :style="getStyleTodoDone(todo.Status)">
+					{{ todo.Title }}
+				</v-card-title>
+				<v-card-subtitle :style="getStyleTodoDone(todo.Status)">
+					{{ todo.DueDate }}
+				</v-card-subtitle>
 			</v-card-item>
 
-			<v-card-text >
+			<v-card-text :style="getStyleTodoDone(todo.Status)" >
 				{{ todo.Description }}
 			</v-card-text>
 
 			<v-card-actions>
-				<v-btn> Edit </v-btn>
-				<v-btn> Set as done </v-btn>
+				<v-btn :disabled="todo.Status === 1"> Edit </v-btn>
+				<v-btn @click="updateStatusTodo(todo.ID, todo.Status)"> 
+				{{ todo.Status === 0 ? 'Set as done' : 'Set as todo' }}	 
+				</v-btn>
 				<v-btn @click="deleteTodo(todo.ID)"> Delete </v-btn>
 			</v-card-actions>
 		</v-card>
