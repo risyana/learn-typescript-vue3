@@ -25,7 +25,23 @@ import { RouterLink, RouterView } from 'vue-router'
 
       <v-main min-width="800px" >
         <v-container fluid >
-          <RouterView/>
+          <RouterView v-slot="{ Component }">
+            <template v-if="Component">
+              <Transition mode="out-in">
+                <KeepAlive>
+                  <Suspense>
+                    <!-- main content -->
+                    <component :is="Component"></component>
+
+                    <!-- loading state -->
+                    <template #fallback>
+                      Loading...
+                    </template>
+                  </Suspense>
+                </KeepAlive>
+              </Transition>
+            </template>
+          </RouterView>
         </v-container>
       </v-main>
     </v-layout>
