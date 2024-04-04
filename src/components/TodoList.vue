@@ -15,7 +15,7 @@ async function fetchTodos(): Promise<TodoResponse[]>  {
 		const { data } = await response.json()
 		return data
 	} catch(err: any) {
-		return err?.message ?? 'error fetch'
+		throw new Error(err)
 	}
 }
 
@@ -54,10 +54,14 @@ function getStyleTodoDone(status: number) {
 }
 
 async function handleFetchTodos() {
-	todos.value = await fetchTodos()
+	try {
+		todos.value = await fetchTodos()
+	} catch (err: any) {
+		const errText = err?.message ?? 'error fetch'
+		console.error(errText)
+	}
 }
 
-// todos.value = await fetchTodos()
 handleFetchTodos()
 
 const todoToEdit = ref<TodoResponse | null>(null)
