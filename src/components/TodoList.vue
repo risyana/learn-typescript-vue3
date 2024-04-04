@@ -19,6 +19,19 @@ async function fetchTodos(): Promise<TodoResponse[]>  {
 	}
 }
 
+async function deleteTodo(id: number): Promise<void>  {
+	const url = 'http://127.0.0.1:7878'
+	try {
+		await fetch(url+'/v1/todos/'+id, {
+			method: "DELETE",
+			credentials: 'include',
+		})
+		window.location.reload()
+	} catch(err: any) {
+		return err?.message ?? 'error delete'
+	}
+}
+
 todos.value = await fetchTodos()
 
 </script>
@@ -43,6 +56,7 @@ todos.value = await fetchTodos()
 			<v-card-actions>
 				<v-btn> Edit </v-btn>
 				<v-btn> Set as done </v-btn>
+				<v-btn @click="deleteTodo(todo.ID)"> Delete </v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-container>
