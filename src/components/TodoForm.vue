@@ -13,7 +13,7 @@
 
   const isEdit = computed(() => !!props.todoProps?.ID)
 
-  const emit = defineEmits<{ reset: [] }>()
+  const emit = defineEmits<{ reset: [], finishedPosting: [] }>()
 
 
 	const dialog = ref(false)
@@ -80,7 +80,8 @@
         price: 1 
       }
 
-      window.location.reload()
+      emit('finishedPosting')
+      dialog.value = false
     } catch(err: any) {
       return err?.message ?? 'error fetch'
     }
@@ -97,7 +98,7 @@
       >
         <template v-slot:activator="{ props }">
           <v-btn
-            color="primary"
+            color="teal"
             v-bind="props"
           >
 						Add task

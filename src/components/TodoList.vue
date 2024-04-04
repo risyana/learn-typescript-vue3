@@ -26,7 +26,7 @@ async function deleteTodo(id: number): Promise<void>  {
 			method: "DELETE",
 			credentials: 'include',
 		})
-		window.location.reload()
+		handleFetchTodos()
 	} catch(err: any) {
 		return err?.message ?? 'error delete'
 	}
@@ -43,7 +43,7 @@ async function updateStatusTodo(id: number, currentStatus: number): Promise<void
 			credentials: 'include',
 			body: JSON.stringify(body),
 		})
-		window.location.reload()
+		handleFetchTodos()
 	} catch(err: any) {
 		return err?.message ?? 'error update status'
 	}
@@ -53,7 +53,12 @@ function getStyleTodoDone(status: number) {
 	return status === 1 ? 'text-decoration: line-through;' : '';
 }
 
-todos.value = await fetchTodos()
+async function handleFetchTodos() {
+	todos.value = await fetchTodos()
+}
+
+// todos.value = await fetchTodos()
+handleFetchTodos()
 
 const todoToEdit = ref<TodoResponse | null>(null)
 
@@ -63,37 +68,41 @@ const todoToEdit = ref<TodoResponse | null>(null)
 	<v-container min-width="400px" d-flex class="d-flex align-center flex-column">
 
 		<div class="mb-6">
-			<TodoForm :todo-props="todoToEdit" @reset="() => todoToEdit = null" />
+			<TodoForm 
+				:todo-props="todoToEdit" 
+				@reset="() => todoToEdit = null" 
+				@finished-posting="handleFetchTodos"
+			/>
 		</div>
 
-		<v-card 
-			:color="todo.Status === 0 ? 'teal-lighten-2' : ''"
-			:variant="todo.Status === 0 ? 'flat' : 'tonal'"
-			class="mx-auto my-2"
-			width="100%"
-			v-for="todo in todos" 
-			:key="todo.ID"
-		>
-			<v-card-item>
-				<v-card-title :style="getStyleTodoDone(todo.Status)">
-					{{ todo.Title }}
-				</v-card-title>
-				<v-card-subtitle :style="getStyleTodoDone(todo.Status)">
-					{{ todo.DueDate }}
-				</v-card-subtitle>
-			</v-card-item>
+			<v-card 
+				:color="todo.Status === 0 ? 'teal-lighten-2' : ''"
+				:variant="todo.Status === 0 ? 'flat' : 'tonal'"
+				class="mx-auto my-2"
+				width="100%"
+				v-for="todo in todos" 
+				:key="todo.ID"
+			>
+				<v-card-item>
+					<v-card-title :style="getStyleTodoDone(todo.Status)">
+						{{ todo.Title }}
+					</v-card-title>
+					<v-card-subtitle :style="getStyleTodoDone(todo.Status)">
+						{{ todo.DueDate }}
+					</v-card-subtitle>
+				</v-card-item>
 
-			<v-card-text :style="getStyleTodoDone(todo.Status)" >
-				{{ todo.Description }}
-			</v-card-text>
+				<v-card-text :style="getStyleTodoDone(todo.Status)" >
+					{{ todo.Description }}
+				</v-card-text>
 
-			<v-card-actions>
-				<v-btn @click="todoToEdit = todo" :disabled="todo.Status === 1"> Edit </v-btn>
-				<v-btn @click="updateStatusTodo(todo.ID, todo.Status)"> 
-				{{ todo.Status === 0 ? 'Set as done' : 'Set as todo' }}	 
-				</v-btn>
-				<v-btn @click="deleteTodo(todo.ID)"> Delete </v-btn>
-			</v-card-actions>
-		</v-card>
+				<v-card-actions>
+					<v-btn @click="todoToEdit = todo" :disabled="todo.Status === 1"> Edit </v-btn>
+					<v-btn @click="updateStatusTodo(todo.ID, todo.Status)"> 
+					{{ todo.Status === 0 ? 'Set as done' : 'Set as todo' }}	 
+					</v-btn>
+					<v-btn @click="deleteTodo(todo.ID)"> Delete </v-btn>
+				</v-card-actions>
+			</v-card>
 	</v-container>
 </template>

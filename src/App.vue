@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <v-card min-width="800px" class="mx-auto" color="grey-lighten-3">
+  <v-card max-width="800px" min-height="calc(100vh - 40px)" class="mx-auto" color="teal-lighten-5">
     <v-layout>
       <v-app-bar >
         <template v-slot:prepend>

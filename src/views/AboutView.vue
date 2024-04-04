@@ -1,5 +1,5 @@
 <template>
   <div class="about">
-    <h3>This is an about page</h3>
+    <h3>Learning Typescript in Vue 3 using composition API</h3>
   </div>
 </template>
