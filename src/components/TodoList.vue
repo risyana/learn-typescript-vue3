@@ -4,11 +4,11 @@ import { ref } from 'vue'
 import type { TodoResponse } from '../types/TodoResponse.ts'
 
 const todos = ref<TodoResponse[]>([])
+const BASE_URL = import.meta.env.VITE_BASE_URL
 
 async function fetchTodos(): Promise<TodoResponse[]>  {
-	const url = 'http://127.0.0.1:7878'
 	try {
-		const response = await fetch(url+'/v1/todos', {
+		const response = await fetch(`${BASE_URL}/v1/todos`, {
 			method: "GET",
 			credentials: 'include',
 		})
@@ -20,9 +20,8 @@ async function fetchTodos(): Promise<TodoResponse[]>  {
 }
 
 async function deleteTodo(id: number): Promise<void>  {
-	const url = 'http://127.0.0.1:7878'
 	try {
-		await fetch(url+'/v1/todos/'+id, {
+		await fetch(`${BASE_URL}/v1/todos/${id}`, {
 			method: "DELETE",
 			credentials: 'include',
 		})
@@ -33,12 +32,11 @@ async function deleteTodo(id: number): Promise<void>  {
 }
 
 async function updateStatusTodo(id: number, currentStatus: number): Promise<void>  {
-	const url = 'http://127.0.0.1:7878'
 	const body = {
 		status : currentStatus === 0 ? 1 : 0 
 	}
 	try {
-		await fetch(url+'/v1/todos/update-status?id='+id, {
+		await fetch(`${BASE_URL}/v1/todos/update-status?id=${id}`, {
 			method: "PUT",
 			credentials: 'include',
 			body: JSON.stringify(body),

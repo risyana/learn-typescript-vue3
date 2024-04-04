@@ -4,6 +4,8 @@
   import type { TodoInput } from "../types/TodoInput"
   import type { TodoResponse } from '../types/TodoResponse.ts'
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL
+
   const props = defineProps({
     todoProps: {
       default: null,
@@ -57,16 +59,15 @@
   )
 
   async function postTodoHandler(): Promise<void> {
-	const url = 'http://127.0.0.1:7878'
     try {
       if (isEdit.value) {
-        await fetch(url+'/v1/todos?id='+props.todoProps?.ID, {
+        await fetch(`${BASE_URL}/v1/todos?id=${props.todoProps?.ID}`, {
           method: "PUT",
           credentials: 'include',
           body: JSON.stringify(todo.value)
         })
       } else {
-        await fetch(url+'/v1/todos', {
+        await fetch(`${BASE_URL}/v1/todos`, {
           method: "POST",
           credentials: 'include',
           body: JSON.stringify(todo.value)
