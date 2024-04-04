@@ -55,17 +55,19 @@ function getStyleTodoDone(status: number) {
 
 todos.value = await fetchTodos()
 
+const todoToEdit = ref<TodoResponse | null>(null)
+
 </script>
 
 <template>
 	<v-container min-width="400px" d-flex class="d-flex align-center flex-column">
 
 		<div class="mb-6">
-			<TodoForm />
+			<TodoForm :todo-props="todoToEdit" @reset="() => todoToEdit = null" />
 		</div>
 
 		<v-card 
-			:color="todo.Status === 0 ? 'indigo' : ''"
+			:color="todo.Status === 0 ? 'teal-lighten-2' : ''"
 			:variant="todo.Status === 0 ? 'flat' : 'tonal'"
 			class="mx-auto my-2"
 			width="100%"
@@ -86,7 +88,7 @@ todos.value = await fetchTodos()
 			</v-card-text>
 
 			<v-card-actions>
-				<v-btn :disabled="todo.Status === 1"> Edit </v-btn>
+				<v-btn @click="todoToEdit = todo" :disabled="todo.Status === 1"> Edit </v-btn>
 				<v-btn @click="updateStatusTodo(todo.ID, todo.Status)"> 
 				{{ todo.Status === 0 ? 'Set as done' : 'Set as todo' }}	 
 				</v-btn>

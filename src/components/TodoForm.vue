@@ -1,14 +1,52 @@
 <script setup lang="ts">
-	import { ref, watch } from 'vue'
-  import type {TodoInput} from "../types/TodoInput"
+	import { ref, watch, computed } from 'vue'
+	import type { PropType } from 'vue'
+  import type { TodoInput } from "../types/TodoInput"
+  import type { TodoResponse } from '../types/TodoResponse.ts'
+
+  const props = defineProps({
+    todoProps: {
+      default: null,
+      type: Object as PropType<TodoResponse | null>,
+    }
+  })
+
+  const isEdit = computed(() => !!props.todoProps?.ID)
+
+  const emit = defineEmits<{ reset: [] }>()
+
 
 	const dialog = ref(false)
+  watch(dialog, (val) => { 
+    if (!val) emit('reset') 
+  })
 
   const todo = ref<TodoInput>({
     title: '',
     description:'',
     due_date: '',
     price: 1
+  })
+
+  watch(() => props.todoProps, (val) => {
+    if(val) {
+      dialog.value = true
+      dueDate.value = new Date(val.DueDate)
+      todo.value = {
+        title: val.Title,
+        description: val.Description,
+        due_date: '',
+        price: 1
+      }
+    } else {
+      dueDate.value = new Date()
+      todo.value = {
+        title: '',
+        description:'',
+        due_date: '',
+        price: 1
+      }
+    }
   })
 
   const dueDate = ref(new Date())
@@ -21,11 +59,19 @@
   async function postTodoHandler(): Promise<void> {
 	const url = 'http://127.0.0.1:7878'
     try {
-      await fetch(url+'/v1/todos', {
-        method: "POST",
-        credentials: 'include',
-        body: JSON.stringify(todo.value)
-      })
+      if (isEdit.value) {
+        await fetch(url+'/v1/todos?id='+props.todoProps?.ID, {
+          method: "PUT",
+          credentials: 'include',
+          body: JSON.stringify(todo.value)
+        })
+      } else {
+        await fetch(url+'/v1/todos', {
+          method: "POST",
+          credentials: 'include',
+          body: JSON.stringify(todo.value)
+        })
+      }
 		
       todo.value = {
         title: '',
