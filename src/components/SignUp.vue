@@ -2,33 +2,27 @@
 	<v-container class="mt-5" max-width="500px">
 		<v-card>
 		<v-card-title>
-			Sign In 
+			Register
 		</v-card-title>
 		<v-card-text>
 			<v-form v-model="valid" ref="form">
 
 			<v-text-field
 				label="Email"
-				v-model="signInData.email"
+				v-model="signUpData.email"
 				:rules="[rules.required, rules.email]"
 				required
 			/>
 			<v-text-field
 				label="Password"
-				v-model="signInData.password"
+				v-model="signUpData.password"
 				:rules="[rules.required]"
 				type="password"
 				required
 			/>
-
-			<div class="d-flex justify-space-between">
-				<v-btn @click="handleSignIn" :disabled="!valid" color="primary" :loading="isSubmitting">
-					Sign In
-				</v-btn>
-				<v-btn :to="{name: 'sign-up'}" variant="text">
-					Register
-				</v-btn>	
-			</div>
+			<v-btn @click="handleSignUp" :disabled="!valid" color="primary" :loading="isSubmitting">
+				Register
+			</v-btn>
 			</v-form>
 		</v-card-text>
 		</v-card>
@@ -39,12 +33,16 @@
 				</v-btn>
 			</template>
 		</v-snackbar>
+
+		<v-snackbar v-model="isSuccess" multi-line location="top" transition="scale-transition"> 
+			Register success, you can sign in now.
+		</v-snackbar>
 	</v-container>
 </template>
 
 <script setup lang="ts" >
 import { ref, getCurrentInstance } from 'vue'
-import type { SignInInput } from '../types/SignInInput'
+import type { SignUpInput } from '../types/SignUpInput'
 
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
@@ -58,40 +56,39 @@ const rules= {
 
 const valid = ref(false)
 const isError = ref(false)
+const isSuccess = ref(false)
 const isSubmitting = ref(false)
 const errorText = ref('')
 
-const signInData = ref<SignInInput>({
+const signUpData = ref<SignUpInput>({
 	email: '',
 	password: ''
 })
 
-async function handleSignIn() {
+async function handleSignUp() {
 	try {
 		isSubmitting.value = true
 		isError.value = false
+		isSuccess.value = false
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
-		const response = await fetch(`${BASE_URL}/v1/signin`, {
+		const response = await fetch(`${BASE_URL}/v1/signup`, {
 			method: "POST",
-			body: JSON.stringify(signInData.value),
+			body: JSON.stringify(signUpData.value),
 			headers: myHeaders
 		})
-
 		const result = await response.json()
 		if (!response.ok) {
 			throw new Error(String(result.error));
 		}
-		console.log('result', result.token)
-		proxy.$cookies.set('token', result.token, '7d', "", "", true, false)
-		document.location.href = '/'
+		isSuccess.value = true
+		proxy.$router.push('/sign-in')
 	} catch (text) {
 		isError.value = true
-		errorText.value = text || 'error on sign in'
+		errorText.value = text || 'error on sign up'
 	} finally {
 		isSubmitting.value = false
 	}
-
 }
 
 </script>

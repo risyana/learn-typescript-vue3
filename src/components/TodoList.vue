@@ -2,9 +2,15 @@
 import TodoForm from './TodoForm.vue';
 import { ref } from 'vue'
 import type { TodoResponse } from '../types/TodoResponse.ts'
+import type { SignUpInput } from '../types/SignUpInput.ts'
 
 const todos = ref<TodoResponse[]>([])
 const BASE_URL = import.meta.env.VITE_BASE_URL
+
+const signUpData = ref<SignUpInput>({
+	email: '',
+	password: ''
+})
 
 async function fetchTodos(): Promise<TodoResponse[]>  {
 	try {
@@ -60,6 +66,16 @@ async function handleFetchTodos() {
 	}
 }
 
+async function handleSignUp() {
+	const myHeaders = new Headers();
+	myHeaders.append("Content-Type", "application/json");
+	await fetch(`${BASE_URL}/v1/signup`, {
+		method: "POST",
+		body: JSON.stringify(signUpData.value),
+		headers: myHeaders
+	})
+}
+
 handleFetchTodos()
 
 const todoToEdit = ref<TodoResponse | null>(null)
@@ -106,5 +122,18 @@ const todoToEdit = ref<TodoResponse | null>(null)
 					<v-btn @click="deleteTodo(todo.ID)"> Delete </v-btn>
 				</v-card-actions>
 			</v-card>
+
+		<!-- Test sign up -->
+		<div>
+			<h1>Sign up</h1>
+			<label for="email">email</label>
+			<input v-model="signUpData.email" style="border: 1px solid gray;" name="email" type="text" />
+			<label for="password">password</label>
+			<input v-model="signUpData.password" style="border: 1px solid gray;" name="password" type="text" />
+			<button @click="handleSignUp" type="submit">sign up</button>
+		</div>
+		
+		<hr/>
+
 	</v-container>
 </template>
