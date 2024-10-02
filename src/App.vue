@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router';
+import { getCurrentInstance } from 'vue';
+
+const {proxy} = getCurrentInstance();
+
+function handleSignOut() {
+  proxy.$cookies.remove('token');
+  document.location.href= '/sign-in';
+}
 
 </script>
 
@@ -17,6 +25,9 @@ import { RouterLink, RouterView } from 'vue-router'
         </v-btn>
         <v-btn>
           <RouterLink to="/about">About</RouterLink>
+        </v-btn>
+        <v-btn @click="handleSignOut">
+          Sign out
         </v-btn>
         <v-btn icon>
           <v-icon>mdi-dots-vertical</v-icon>
