@@ -4,7 +4,8 @@
 		<v-card-title>
 			Sign In 
 		</v-card-title>
-		<v-card-text>
+		<v-progress-linear v-if="isSignInWithGoogle" indeterminate></v-progress-linear>
+		<v-card-text v-else>
 			<v-form v-model="valid" ref="form">
 
 			<v-text-field
@@ -21,13 +22,17 @@
 				required
 			/>
 
-			<div class="d-flex justify-space-between">
+
+			<div class="d-flex justify-space-between align-items-center">
 				<v-btn @click="handleSignIn" :disabled="!valid" color="primary" :loading="isSubmitting">
 					Sign In
 				</v-btn>
-				<v-btn :to="{name: 'sign-up'}" variant="text">
-					Register
-				</v-btn>	
+				<div class="d-flex align-items-baseline ga-3">
+					<GoogleLogin :callback="handleGoogleLogin" />
+					<v-btn :to="{name: 'sign-up'}"  >
+						Register
+					</v-btn>	
+				</div>
 			</div>
 			</v-form>
 		</v-card-text>
@@ -45,6 +50,7 @@
 <script setup lang="ts" >
 import { ref, getCurrentInstance } from 'vue'
 import type { SignInInput } from '../types/SignInInput'
+import { decodeCredential } from 'vue3-google-login'
 
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
@@ -59,12 +65,68 @@ const rules= {
 const valid = ref(false)
 const isError = ref(false)
 const isSubmitting = ref(false)
+const isSignInWithGoogle = ref(false)
 const errorText = ref('')
 
 const signInData = ref<SignInInput>({
 	email: '',
 	password: ''
 })
+
+async function handleGoogleLogin(response) {
+	try {
+		isSignInWithGoogle.value = true
+		const userData = decodeCredential(response.credential)
+		// TODO: use proper approach to store user data to the DB
+		signInData.value = {
+			email: userData.sub,
+			password: '',
+		}
+		await handleSignUpAndThenSignIn()
+	} catch (error) {
+		isSignInWithGoogle.value = false
+		console.error('Google login error:', error);
+	}
+}
+
+
+async function handleSignUpAndThenSignIn() {
+	try {
+		isSubmitting.value = true
+		isError.value = false
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+		let result
+
+		// Sign Up
+		let response = await fetch(`${BASE_URL}/v1/signup`, {
+			method: "POST",
+			body: JSON.stringify(signInData.value),
+			headers: myHeaders
+		})
+
+		// Sign In
+		response = await fetch(`${BASE_URL}/v1/signin`, {
+			method: "POST",
+			body: JSON.stringify(signInData.value),
+			headers: myHeaders
+		})
+
+		result = await response.json()
+		if (!response.ok) {
+			throw new Error(String(result.error));
+		}
+
+		proxy.$cookies.set('token', result.token, '7d', "", "", true, false)
+		proxy.$router.push("/")
+	} catch (text) {
+		isError.value = true
+		errorText.value = text || 'error on sign in'
+	} finally {
+		isSubmitting.value = false
+	}
+
+}
 
 async function handleSignIn() {
 	try {
@@ -82,7 +144,6 @@ async function handleSignIn() {
 		if (!response.ok) {
 			throw new Error(String(result.error));
 		}
-		console.log('result', result.token)
 		proxy.$cookies.set('token', result.token, '7d', "", "", true, false)
 		document.location.href = '/'
 	} catch (text) {
