@@ -26,7 +26,7 @@ function handleSignOut() {
         <v-btn>
           <RouterLink to="/about">About</RouterLink>
         </v-btn>
-        <v-btn @click="handleSignOut">
+        <v-btn @click="handleSignOut" v-if="!!$cookies.get('token')">
           Sign out
         </v-btn>
         <v-btn icon>
