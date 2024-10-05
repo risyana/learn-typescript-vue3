@@ -118,7 +118,7 @@ async function handleSignUpAndThenSignIn() {
 		}
 
 		proxy.$cookies.set('token', result.token, '7d', "", "", true, false)
-		proxy.$router.push("/")
+		document.location.href="/"
 	} catch (text) {
 		isError.value = true
 		errorText.value = text || 'error on sign in'
