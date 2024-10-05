@@ -23,16 +23,16 @@
 			/>
 
 
-			<div class="d-flex justify-space-between align-items-center">
-				<v-btn @click="handleSignIn" :disabled="!valid" color="primary" :loading="isSubmitting">
-					Sign In
-				</v-btn>
-				<div class="d-flex align-items-baseline ga-3">
+			<div class="d-flex justify-space-between align-center">
+				<div class="d-flex align-center ga-3">
+					<v-btn @click="handleSignIn" :disabled="!valid" color="primary" :loading="isSubmitting">
+						Sign In
+					</v-btn>
 					<GoogleLogin :callback="handleGoogleLogin" />
-					<v-btn :to="{name: 'sign-up'}"  >
-						Register
-					</v-btn>	
 				</div>
+				<v-btn :to="{name: 'sign-up'}" variant="text">
+					Register
+				</v-btn>	
 			</div>
 			</v-form>
 		</v-card-text>

@@ -20,9 +20,14 @@
 				type="password"
 				required
 			/>
-			<v-btn @click="handleSignUp" :disabled="!valid" color="primary" :loading="isSubmitting">
-				Register
-			</v-btn>
+			<div class="d-flex justify-space-between align-center">
+				<v-btn @click="handleSignUp" :disabled="!valid" color="primary" :loading="isSubmitting">
+					Register
+				</v-btn>
+				<v-btn :to="{name: 'sign-in'}" variant="text">
+					Sign in
+				</v-btn>	
+			</div>
 			</v-form>
 		</v-card-text>
 		</v-card>
