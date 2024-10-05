@@ -16,12 +16,14 @@ const router = createRouter({
     {
       path: '/sign-in',
       name: 'sign-in',
-      component: SignIn
+      component: SignIn,
+      meta: { requiresNoAuth: true }, // Set meta field to indicate route needs authentication
     },
     {
       path: '/sign-up',
       name: 'sign-up',
-      component: SignUp
+      component: SignUp,
+      meta: { requiresNoAuth: true }, // Set meta field to indicate route needs authentication
     },
     {
       path: '/about',
@@ -35,22 +37,17 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  // Check if the route requires authentication
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    // Check if the authentication cookie exists
-    const authCookie = VueCookies.get('token'); // Replace 'authToken' with your cookie name
+  const authCookie = VueCookies.get('token');
 
-    if (authCookie) {
-      // If cookie is present, allow navigation
-      next();
-    } else {
-      // If cookie is not present, redirect to login page
-      next({ name: 'sign-in' });
-    }
-  } else {
-    // If the route doesn't require authentication, allow navigation
-    next();
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    return authCookie ? next() : next({ name: 'sign-in' });
   }
+
+  if (to.matched.some(record => record.meta.requiresNoAuth)) {
+    return !authCookie ? next() : (document.location.href = '/');
+  }
+
+  next();
 });
 
 export default router
